@@ -1,5 +1,6 @@
 # frozen_string_literal: false
 require 'test/unit'
+require 'test/unit/assertions'
 
 class TestVariable < Test::Unit::TestCase
   class Gods
@@ -86,6 +87,33 @@ class TestVariable < Test::Unit::TestCase
       end
     end.call
     x
+  end
+
+  class TestVcall
+    def vcall_foo
+      foo
+    end
+  end
+
+  def test_vcall
+    obj = TestVcall.new
+    assert_raise_with_message(NameError, /undefined local variable or method `foo'/) do
+      obj.vcall_foo
+    end
+    def obj.foo
+      'exists now'
+    end
+    assert_equal(obj.vcall_foo, 'exists now')
+  end
+
+  def test_vcall_then_local_variable
+    assert_raise_with_message(NameError, /undefined local variable or method `x'/) do
+      x
+    end
+    if false
+      x = 'never assigned'
+    end
+    assert_equal(x, nil)
   end
 
   def test_shadowing_local_variables
